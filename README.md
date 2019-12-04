@@ -701,4 +701,4 @@ eval($code);
 ```
 
 # 参考
-maple、SkyBlue永恒、新仙剑之鸣、anlfi、mochazz、yzddMr6s、JamVayne、UltramanGaia等发过的文章。
+maple、SkyBlue永恒、新仙剑之鸣、anlfi、mochazz、yzddMr6s、JamVayne、UltramanGaia、phith0n、Laruence等发过的文章。
