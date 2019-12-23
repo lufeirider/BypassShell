@@ -106,4 +106,4 @@ e+j-v+j-a+j-l(request(1))
 ```
 
 # 参考
-新仙剑之鸣
+新仙剑之鸣、LandGrey
