@@ -323,6 +323,25 @@ public static void main(String[] args) throws NotFoundException, CannotCompileEx
 }
 ```
 
+## 文件包含
+1.txt or 1.jsp
+```
+<%
+out.println("1111111");
+%>
+```
+
+静态包含
+在servlet容器转化jsp为servlet时，将引入的jsp源码全部添加到当前jsp，一并转化成一个servlet,可以理解为整合一个servlet，一起编译，一次执行
+```
+<%@include file="1.txt"%>
+```
+
+动态包含
+可以理解为，各自单独编译，互相调用编译的文件(为1.txt并不转成servlet)
+```
+<jsp:include page="2.jsp" />
+```
 
 ## 模板注入
 #### jsp
